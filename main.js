@@ -2,22 +2,35 @@
   img.src = srcs[MathHelp.randInt(0, srcs.length)];
   img.addEventListener("load", () => {
     // finish setting up globals with img width
-    let w = img.width
-    let h = img.height
+    
+    let aspectRatio = img.width / img.height
+    let windowRatio = window.innerWidth / window.innerHeight;
+    let w = window.innerWidth
+    let h = window.innerHeight
+    if (windowRatio > aspectRatio) w = Math.round(h * aspectRatio)
+    else h = Math.round(w / aspectRatio)
     canvas.width = w;
     canvas.height = h;
-    imgCanvas = newOffscreenCanvas(w * imgRatio, h * imgRatio)
+    if (canvas.width > 1920) { //scale down if too large...
+      canvas.height *= 1920 / canvas.width;
+      canvas.width = 1920;
+      canvas.style.width = w + "px"
+      canvas.style.height = h + "px"
+    }
+    imgCanvas = newOffscreenCanvas(img.width * IMG_COMPRESSION, img.height * IMG_COMPRESSION)
     imgCtx = imgCanvas.getContext("2d");
     imgCtx.drawImage(img,
-      0, 0, w, h,
+      0, 0, img.width, img.height,
       0, 0, imgCanvas.width, imgCanvas.height
     );
+
+    imgRatio = imgCanvas.width / canvas.width;
   
     pieceCanvas = newOffscreenCanvas(canvas.width, canvas.height);
     pieceCtx = pieceCanvas.getContext("2d");
     
-    let minw = Math.ceil((canvas.width / canvas.clientWidth) * 5);
-    let minh = Math.ceil((canvas.height / canvas.clientHeight) * 5);
+    let minw = 5; //Math.ceil((canvas.width / canvas.clientWidth) * 5);
+    let minh = 5; //Math.ceil((canvas.height / canvas.clientHeight) * 5);
     MIN_RENDERABLE_AREA = minw * minh;
     beginTessellation()
   })
@@ -145,6 +158,6 @@ function fadeToImg() {
   fadeAlpha += .001;
   ctx.globalCompositeOperation = "source-over";
   ctx.globalAlpha = fadeAlpha;
-  ctx.drawImage(img, 0, 0);
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   requestAnimationFrame(fadeToImg)
 }

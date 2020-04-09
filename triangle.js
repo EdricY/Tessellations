@@ -48,10 +48,10 @@ class Triangle {
     ctx.fillStyle = color.toString();
     ctx.strokeStyle = "#555";
     ctx.lineJoin = "bevel";
-    ctx.lineWidth = Math.sqrt(this.area) / 20;
-    if (ctx.lineWidth < 4) {
+    ctx.lineWidth = Math.sqrt(this.area) / 10;
+    if (ctx.lineWidth < 2) {
       // TODO: probably need to account for clientWidth ratio
-      ctx.lineWidth = 4;
+      ctx.lineWidth = 2;
       ctx.strokeStyle = color;
     }
     ctx.beginPath();

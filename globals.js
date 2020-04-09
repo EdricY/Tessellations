@@ -9,10 +9,11 @@ const srcs = [
   "imgs/image5.png",
 ]
 
-let imgRatio = .25; // img will be stored (compressed) at this side-length ratio
 let imgCanvas;
 let imgCtx;
 let img = new Image();
+let imgRatio; // img will be stored at this side-length ratio
+const IMG_COMPRESSION = .25; // img will be stored at this side-length ratio
 
 let pieceCanvas;
 let pieceCtx;
@@ -28,7 +29,8 @@ var mode = TraversalMode.LARGEST;
  // TODO: maybe set all of these after finding out the img size?
 const COLOR_SKIP = 0; //higher # should improve runtime by lowering color accuracy
 const TAU = 2 * Math.PI;
-const TICK_DUR = 25; //in ms
+const TICK_DUR = 50; //in ms - longer tick means more is processed per tick, so it will be choppier,
+                     //but not necessarily slower
 const MAX_ITERS_PER_TICK = Infinity; //decrese for slower ending
 const MAX_AREA_PER_TICK = 50000; //bounding box area - decrease for slower beginning
 var MIN_RENDERABLE_AREA;
