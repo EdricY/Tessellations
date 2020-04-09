@@ -31,7 +31,6 @@ class ScreenSplitter {
     ]
     let idx = MathHelp.randInt(0, splitMethods.length);
     let method = this[splitMethods[idx]];
-    console.log(method)
     return method.call(this);
   }
 

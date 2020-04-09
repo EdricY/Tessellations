@@ -29,9 +29,8 @@
     pieceCanvas = newOffscreenCanvas(canvas.width, canvas.height);
     pieceCtx = pieceCanvas.getContext("2d");
     
-    let minw = 5; //Math.ceil((canvas.width / canvas.clientWidth) * 5);
-    let minh = 5; //Math.ceil((canvas.height / canvas.clientHeight) * 5);
-    MIN_RENDERABLE_AREA = minw * minh;
+    MIN_RENDERABLE_AREA = 16;
+    AREA_PER_TICK = canvas.width * canvas.height / 64;
     beginTessellation()
   })
 })(); //iife
@@ -47,7 +46,6 @@ function beginTessellation() {
 
   let splitter = new ScreenSplitter(canvas.width, canvas.height);
   let firstTriangles = splitter.randomSplit();
-  console.log(firstTriangles)
   firstTriangles.forEach(tri => triangles.push(tri));
 
   requestAnimationFrame(tick);
@@ -90,7 +88,7 @@ function getTriangleColor(triangle) {
  */
 function flushImagePieces() {
   pieceCtx.globalCompositeOperation = "source-in";
-  pieceCtx.drawImage(img, 0, 0);
+  pieceCtx.drawImage(img, 0, 0, pieceCanvas.width, pieceCanvas.height);
   ctx.drawImage(pieceCanvas, 0, 0);
 }
 
@@ -103,30 +101,38 @@ function tick(time) {
   let flushPieces = false; 
   let iters = 0;
   let area = 0;
-  while (performance.now() - time < TICK_DUR) {
+  while (true) {
     let triangle = iterate();
     if (done) break;
-    area += triangle.area;
-    iters++;
-    if (!isRenderable(triangle)) flushPieces = true;
-    if (iters >= MAX_ITERS_PER_TICK) break;
-    if (area > MAX_AREA_PER_TICK) break;
+
+    //non-renderables only count when we draw pieces
+    if (isRenderable(triangle)) {
+      iters++;
+      area += triangle.area;
+    } else if (USE_IMG_PIECES) {
+      flushPieces = true;
+      iters++;
+      area += triangle.area;
+    }
+    
+    if (iters >= ITERS_PER_TICK) break;
+    if (area > AREA_PER_TICK) break;
   }
 
   // console.log(area, iters);
 
-  // if (flushPieces) flushImagePieces();
+  if (USE_IMG_PIECES && flushPieces) flushImagePieces();
 
   if (done) {
     console.log("done!");
+    //reuse piece canvas to store current state (for fading)
+    ctx.globalCompositeOperation = "source-over";
+    pieceCtx.drawImage(canvas, 0, 0);
     requestAnimationFrame(fadeToImg);
-    // setTimeout(() => ctx.drawImage(img, 0, 0), 1000);
     return;
   }
 
-  let remaining = TICK_DUR - (performance.now() - time);
-  if (remaining <= 0) requestAnimationFrame(tick) // no time to spare!
-  else setTimeout(() => requestAnimationFrame(tick), Math.floor(remaining))
+  requestAnimationFrame(tick)
 }
 
 /**
@@ -146,7 +152,7 @@ function iterate() {
 
     if (mode == TraversalMode.IN_ORDER) subs.forEach(sub => triangles.unshift(sub))
     else subs.forEach(sub => triangles.push(sub))
-  } else { //dispose img-triangle intersection to piece canvas
+  } else if (USE_IMG_PIECES) { //dispose img-triangle intersection to piece canvas
     pieceCtx.globalCompositeOperation = "source-over";
     triangle.draw(pieceCtx);
   }
@@ -155,9 +161,12 @@ function iterate() {
 
 let fadeAlpha = 0;
 function fadeToImg() {
-  fadeAlpha += .001;
-  ctx.globalCompositeOperation = "source-over";
-  ctx.globalAlpha = fadeAlpha;
+  ctx.globalAlpha = 1;
+  ctx.drawImage(pieceCanvas, 0, 0);
+
+  ctx.globalAlpha = fadeAlpha += .01;
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-  requestAnimationFrame(fadeToImg)
+  
+  if (fadeAlpha < 1) requestAnimationFrame(fadeToImg)
+  else console.log("fade done!")
 }

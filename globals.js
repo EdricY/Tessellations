@@ -23,14 +23,15 @@ let triangles;
 let done = false;
 
 const TraversalMode = { LARGEST: 0, IN_ORDER: 1, RANDOM: 2 }
-var mode = TraversalMode.LARGEST;
-// var mode = Math.floor(Math.random() * 3);
+let mode = TraversalMode.LARGEST;
+// let mode = Math.floor(Math.random() * 3);
 
  // TODO: maybe set all of these after finding out the img size?
 const COLOR_SKIP = 0; //higher # should improve runtime by lowering color accuracy
 const TAU = 2 * Math.PI;
-const TICK_DUR = 50; //in ms - longer tick means more is processed per tick, so it will be choppier,
-                     //but not necessarily slower
-const MAX_ITERS_PER_TICK = Infinity; //decrese for slower ending
-const MAX_AREA_PER_TICK = 50000; //bounding box area - decrease for slower beginning
-var MIN_RENDERABLE_AREA;
+// triangles will flush to canvas once iters or area quota has been reached
+let ITERS_PER_TICK = 200;  // lower value makes ending slower
+let AREA_PER_TICK = 10000; // lower value makes beginning slower
+let MIN_RENDERABLE_AREA = 16;
+
+const USE_IMG_PIECES = false; //set to true to draw pieces of the actual image when triangles are tiny
