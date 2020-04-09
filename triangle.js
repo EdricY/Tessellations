@@ -46,21 +46,21 @@ class Triangle {
 
   draw(ctx, color="orange") {
     ctx.fillStyle = color.toString();
+    ctx.strokeStyle = "#555";
+    ctx.lineJoin = "bevel";
+    ctx.lineWidth = Math.sqrt(this.area) / 20;
+    if (ctx.lineWidth < 4) {
+      // TODO: probably need to account for clientWidth ratio
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = color;
+    }
     ctx.beginPath();
     ctx.moveTo(this.p1.x, this.p1.y);
     ctx.lineTo(this.p2.x, this.p2.y);
     ctx.lineTo(this.p3.x, this.p3.y);
-    ctx.lineTo(this.p1.x, this.p1.y);
+    ctx.closePath();
     ctx.fill();
-    ctx.strokeStyle = "#555";
-    ctx.lineJoin = "round";
-    ctx.lineWidth = Math.sqrt(this.area) / 20;
-    if (ctx.lineWidth < 4) {
-      ctx.lineWidth = 4;
-      ctx.strokeStyle = color;
-    }
     ctx.stroke();
-
   }
   
   getSubTriangles() {

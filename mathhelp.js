@@ -17,6 +17,6 @@ class MathHelp {
   static compareInts(a, b) { return a-b }
   
   static randNearHalf() {
-    return Math.round(MathHelp.randFloat(.4,.6) * 10) / 10
+    return Math.round(MathHelp.randFloat(.4,.6) * 100) / 100
   }
 }

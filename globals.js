@@ -20,7 +20,6 @@ let pieceCtx;
 
 let triangles;
 let done = false;
-let canvasImgRatio = 1;
 
 const TraversalMode = { LARGEST: 0, IN_ORDER: 1, RANDOM: 2 }
 var mode = TraversalMode.LARGEST;
@@ -29,7 +28,7 @@ var mode = TraversalMode.LARGEST;
  // TODO: maybe set all of these after finding out the img size?
 const COLOR_SKIP = 0; //higher # should improve runtime by lowering color accuracy
 const TAU = 2 * Math.PI;
-const TICK_DUR = 100; //in ms
+const TICK_DUR = 25; //in ms
 const MAX_ITERS_PER_TICK = Infinity; //decrese for slower ending
 const MAX_AREA_PER_TICK = 50000; //bounding box area - decrease for slower beginning
 var MIN_RENDERABLE_AREA;
