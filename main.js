@@ -28,19 +28,37 @@ function beginTessellation() {
   else if (mode == TraversalMode.LARGEST) triangles = new BinaryHeap(score);
   else if (mode == TraversalMode.IN_ORDER) triangles = [];
 
-  //prime with first four triangles
   let tl = new Point(0, 0);
-  let tr = new Point(0,canvas.height);
-  let bl = new Point(canvas.width,0);
+  let tr = new Point(canvas.width, 0);
+  let bl = new Point(0, canvas.height);
   let br = new Point(canvas.width,canvas.height);
+  let tm = Point.midpoint(tl, tr, MathHelp.randNearHalf());
+  let bm = Point.midpoint(bl, br, MathHelp.randNearHalf());
+  let ml = Point.midpoint(tl, bl, MathHelp.randNearHalf());
+  let mr = Point.midpoint(tr, br, MathHelp.randNearHalf());
+
   let c = new Point(
-    MathHelp.lerp(0, canvas.width, MathHelp.randNearHalf()),
-    MathHelp.lerp(0, canvas.height, MathHelp.randNearHalf())
+    MathHelp.lerp(0, canvas.width, MathHelp.randFloat(.1,.9)),
+    MathHelp.lerp(0, canvas.height, MathHelp.randFloat(.1,.9))
   );
+
   triangles.push(new Triangle(tl, tr, c))
   triangles.push(new Triangle(br, tr, c))
   triangles.push(new Triangle(bl, br, c))
   triangles.push(new Triangle(tl, bl, c))
+
+  triangles.push(new Triangle(tl, tr, bm))
+  triangles.push(new Triangle(bl, br, tm))
+  triangles.push(new Triangle(tl, bl, mr))
+  triangles.push(new Triangle(br, tr, ml))
+
+  triangles.push(new Triangle(tl, tm, ml))
+  triangles.push(new Triangle(tr, tm, mr))
+  triangles.push(new Triangle(bl, bm, ml))
+  triangles.push(new Triangle(br, bm, mr))
+
+  triangles.push(new Triangle(tm, bm, mr))
+  triangles.push(new Triangle(tm, bm, ml))
 
   if (Math.random() < 0) requestAnimationFrame(tickInOrder);
   else requestAnimationFrame(tick);
