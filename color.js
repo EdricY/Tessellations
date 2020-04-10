@@ -13,11 +13,10 @@ class Color {
   //returns average color from ImageData
   static fromImageData(imgData) {
     let arr = imgData.data;
-    let blockSize = (COLOR_SKIP + 1) * 4;
 
     let rgb = [0,0,0];
     let count = 0;
-    for (let i = 0; i < arr.length; i += blockSize) {
+    for (let i = 0; i < arr.length; i += 4) {
       count++;
       rgb[0] += arr[i];
       rgb[1] += arr[i+1];
@@ -28,10 +27,3 @@ class Color {
   }
 }
 
-function newOffscreenCanvas(w, h) {
-  if (window.OffscreenCanvas) return new OffscreenCanvas(w, h);
-  let newCanvas = document.createElement("canvas");
-  newCanvas.width = w;
-  newCanvas.height = h;
-  return newCanvas;
-}

@@ -1,0 +1,47 @@
+<style>
+  body {
+    background-color: #444;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+  }
+  #canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  .abs {
+    position: absolute;
+    padding: 10px;
+  }
+</style>
+<div class="abs">
+  <button onclick="it.playAnimation()">play</button>
+  <button onclick="it.pauseAnimation()">pause</button>
+  <button onclick="it.tick()">tick</button>
+</div>
+<canvas id="canvas"></canvas>
+<script src="heap.js"></script>
+<script src="triangle.js"></script>
+<script src="color.js"></script>
+<script src="mathhelp.js"></script>
+<script src="screensplit.js"></script>
+<script src="main.js"></script>
+
+<script>
+  let params = new URLSearchParams(window.location.search);
+  let tessOptions = {};
+  params.forEach((val, key) => {
+    if (!ImageTessellator.defaultOptions.hasOwnProperty(key)) return;
+    let defVal = ImageTessellator.defaultOptions[key];
+    let defType = typeof defVal;
+    if (defType == "string") tessOptions[key] = val;
+    else if (defType == "boolean") tessOptions[key] = Boolean(val);
+    else if (defType == "number") tessOptions[key] = Number(val);
+  });
+  
+  let src = params.get("src") || "imgs/image1.jpg";
+  let c = document.getElementById("canvas");
+  let it = new ImageTessellator(c, src, tessOptions);
+  // it.loadCallback = "playAnimation"
+</script>

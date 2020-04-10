@@ -44,15 +44,14 @@ class Triangle {
     return this.area2 / 2
   }
 
-  draw(ctx, color="orange") {
-    ctx.fillStyle = color.toString();
-    ctx.strokeStyle = "#555";
+  draw(ctx, fillColor="orange", strokeColor="#555") {
+    ctx.fillStyle = fillColor.toString();
+    ctx.strokeStyle = strokeColor;
     ctx.lineJoin = "bevel";
     ctx.lineWidth = Math.sqrt(this.area) / 10;
     if (ctx.lineWidth < 2) {
-      // TODO: probably need to account for clientWidth ratio
       ctx.lineWidth = 2;
-      ctx.strokeStyle = color;
+      ctx.strokeStyle = fillColor;
     }
     ctx.beginPath();
     ctx.moveTo(this.p1.x, this.p1.y);
