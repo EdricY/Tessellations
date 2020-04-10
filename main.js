@@ -14,11 +14,7 @@ class ImageTessellator {
   }
 
   static defaultOptions = {
-    //TODO rename me, reuse with tempcanvas in color calculation
-    imgCompressionRatio: .25, // img used for determining color will be stored at this side-length ratio
-    // number from 0 to 1. smaller value means less color accuracy but faster processing
-    
-    //TODO: is this option useful? maxCanvasWidth: 1920,
+    imgSampleRatio: .01, // 0 to 1. smaller value means less color accuracy but faster processing
 
     fitMethod: ImageTessellator.FitOptions.FIT,
     
@@ -33,6 +29,7 @@ class ImageTessellator {
     minColorArea: 50,
     itersPerTick: Infinity,//200,
     areaPerTick: 10000,
+    tickDelay: 0,
 
     renderImgPieces: false, //set to true to draw pieces of the actual image when triangles are tiny
 
@@ -83,18 +80,22 @@ class ImageTessellator {
   imgAfterLoad(img) {
     // setup canvas, imgCanvas, and pieceCanvas
     this.imgLoaded = true;
-    
-    this.canvas.width = this.canvas.clientWidth;
-    this.canvas.height = this.canvas.clientHeight;
+    let cw = this.canvas.clientWidth;
+    let ch = this.canvas.clientHeight;
+    this.canvas.width = cw;
+    this.canvas.height = ch;
 
-    this.imgCanvas = new OffscreenCanvas(this.canvas.width, this.canvas.height);
+    this.tempCanvas.width = cw;
+    this.tempCanvas.height = ch;
+
+    this.imgCanvas = new OffscreenCanvas(cw, ch);
     this.imgCtx = this.imgCanvas.getContext("2d");
     this.imgCtx.fillStyle = this.options.backgroundColor;
-    this.imgCtx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.imgCtx.fillRect(0, 0, cw, ch);
     this.placeImage(this.imgCtx, img, this.options.fitMethod);
   
     if (this.options.renderImgPieces) {
-      this.pieceCanvas = new OffscreenCanvas(this.canvas.width, this.canvas.height);
+      this.pieceCanvas = new OffscreenCanvas(cw, ch);
       this.pieceCtx = this.pieceCanvas.getContext("2d");
     }
 
@@ -175,17 +176,14 @@ class ImageTessellator {
     h = Math.ceil(h);
     if (w < 1) w = 1;
     if (h < 1) h = 1;
-    this.tempCtx.fillStyle = this.options.backgroundColor;
-    this.tempCtx.fillRect(0, 0, 1, 1);
-    this.tempCtx.drawImage(this.imgCanvas, x, y, w, h, 0, 0, 1, 1);
-    let data = this.tempCtx.getImageData(0,0,1,1).data
-    return new Color(data);
+    let sampleW = Math.ceil(w * this.options.imgSampleRatio)
+    let sampleH = Math.ceil(h * this.options.imgSampleRatio)
 
-    //TODO cleanup new implementation
-    /*
-    let imgData = this.imgCtx.getImageData(x, y, w, h);
+    this.tempCtx.fillStyle = this.options.backgroundColor;
+
+    this.tempCtx.drawImage(this.imgCanvas, x, y, w, h, 0, 0, sampleW, sampleH);
+    let imgData = this.tempCtx.getImageData(0, 0, sampleW, sampleH)
     return Color.fromImageData(imgData);
-    */
   }
 
   /**
@@ -202,21 +200,27 @@ class ImageTessellator {
 
   playAnimation() {
     cancelAnimationFrame(this.currentRafId);
-    requestAnimationFrame(() => this.animate());
+    requestAnimationFrame(t => this.animate(t));
   }
 
   pauseAnimation() {
     cancelAnimationFrame(this.currentRafId);
   }
 
-  animate() {
+  lastTick = 0;
+  animate(t) {
     if (this.tessellatingComplete) return;
-    this.tick();
-    this.currentRafId = requestAnimationFrame(() => this.animate());
+
+    if (t - this.lastTick > this.options.tickDelay) {
+      this.lastTick = t; 
+      this.tick();
+    }
+
+    this.currentRafId = requestAnimationFrame(t => this.animate(t));
   }
 
   tick() {
-    let flushPieces = false; 
+    let flushPieces = false;
     let iters = 0;
     let area = 0;
     while (true) {
@@ -249,7 +253,7 @@ class ImageTessellator {
       if (!this.options.doFadeAfter) this.done = true;
       else this.beginFade();
       return;
-    }  
+    }
   }
 
   /**
@@ -278,9 +282,6 @@ class ImageTessellator {
 
   beginFade() {
     // reuse tempCanvas to store current state
-    this.tempCanvas.width = this.canvas.width;
-    this.tempCanvas.height = this.canvas.height;
-
     this.tempCtx.fillStyle = this.options.backgroundColor;
     this.tempCtx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
