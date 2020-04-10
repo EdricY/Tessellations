@@ -1,9 +1,9 @@
 class ScreenSplitter {
-  constructor(w, h) {
-    this.tl = new Point(0, 0);
-    this.tr = new Point(w, 0);
-    this.bl = new Point(0, h);
-    this.br = new Point(w, h);
+  constructor(x, y, w, h) {
+    this.tl = new Point(x, y);
+    this.tr = new Point(x+w, y);
+    this.bl = new Point(x, y+h);
+    this.br = new Point(x+w, y+h);
 
     this.tm = Point.midpoint(this.tl, this.tr, MathHelp.randNearHalf());
     this.bm = Point.midpoint(this.bl, this.br, MathHelp.randNearHalf());

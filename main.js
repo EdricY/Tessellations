@@ -13,12 +13,20 @@ class ImageTessellator {
     RANDOM_ORDER: 2,
   }
 
+  static SplitOptions = {
+    HALVE: 0,
+    SIERPINSKI: 1,
+    CENTROID: 2,
+  }
+
   static defaultOptions = {
     imgSampleRatio: .01, // 0 to 1. smaller value means less color accuracy but faster processing
 
     fitMethod: ImageTessellator.FitOptions.FIT,
     
     traversalMode: ImageTessellator.TraversalOptions.LARGEST_FIRST,
+
+    splitMode: ImageTessellator.SplitOptions.HALVE,
     
     loadCallback: null,
     
@@ -27,9 +35,9 @@ class ImageTessellator {
     //TODO: no stroke option
 
     minColorArea: 50,
-    itersPerTick: Infinity,//200,
+    itersPerTick: 200,
     areaPerTick: 10000,
-    tickDelay: 0,
+    tickMinDuration: 0,
 
     renderImgPieces: false, //set to true to draw pieces of the actual image when triangles are tiny
 
@@ -54,8 +62,8 @@ class ImageTessellator {
       image = new Image()
       image.src = src;
     }
-    this.imgLoaded = image.complete
     image.crossOrigin = "Anonymous";
+    this.imgLoaded = image.complete
 
     this.tempCanvas = new OffscreenCanvas(1, 1);
     this.tempCtx = this.tempCanvas.getContext("2d");
@@ -73,7 +81,7 @@ class ImageTessellator {
         break;
     }
 
-    if (this.imgLoaded) this.imgAfterLoad(image);
+    if (this.imgLoaded) setTimeout(this.imgAfterLoad(image), 0);
     else image.addEventListener("load", e => this.imgAfterLoad(e.target))
   }
 
@@ -92,20 +100,28 @@ class ImageTessellator {
     this.imgCtx = this.imgCanvas.getContext("2d");
     this.imgCtx.fillStyle = this.options.backgroundColor;
     this.imgCtx.fillRect(0, 0, cw, ch);
-    this.placeImage(this.imgCtx, img, this.options.fitMethod);
-  
+
+    let box = this.placeImage(this.imgCtx, img, this.options.fitMethod);
+    this.addPrimerTriangles(box);
+    
     if (this.options.renderImgPieces) {
       this.pieceCanvas = new OffscreenCanvas(cw, ch);
       this.pieceCtx = this.pieceCanvas.getContext("2d");
     }
-
-    this.addPrimerTriangles();
 
     let onload = this.options.loadCallback
     if (typeof onload == "function") onload();
     if (typeof onload == "string") this[onload]();
   }
 
+  /**
+   * 
+   * @param {CanvasRenderingContext2D} context 
+   * @param {CanvasImageSource} img 
+   * @param {number} fitMethod 
+   * @returns {{x:number, y:number, w:number, h:number}} 
+   *    rectangle representing image position on canvas 
+   */
   placeImage(context, img, fitMethod) {
     context.save();
     let imgw = img.width;
@@ -114,41 +130,45 @@ class ImageTessellator {
     let ch = context.canvas.height;
 
     if (fitMethod == ImageTessellator.FitOptions.SAME) {
-      context.drawImage(img, Math.round((cw-imgw)/2), Math.round((ch-imgh)/2));
-      return;
+      let x = Math.round((cw-imgw)/2);
+      let y = Math.round((ch-imgh)/2);
+      context.drawImage(img, x, y);
+      return { x, y, w: imgw, h: imgh };
     }
 
     if (fitMethod == ImageTessellator.FitOptions.STRETCH) {
       context.drawImage(img, 0, 0, imgw, imgh, 0, 0, cw, ch);
-      return;
+      return { x: 0, y: 0, w: cw, h: ch };
     }
 
     let aspectRatio = imgw / imgh;
     let canvasRatio = cw / ch;
-    let w = imgw;
-    let h = imgh;
+    let w = cw;
+    let h = ch;
   
     if (fitMethod == ImageTessellator.FitOptions.FIT) {
-      if (canvasRatio > aspectRatio) w = Math.round(h * canvasRatio)
-      else h = Math.round(w / canvasRatio)
+      if (canvasRatio > aspectRatio) w = Math.round(h * aspectRatio);
+      else h = Math.round(w / aspectRatio);
     }
-  
+    
     else if (fitMethod == ImageTessellator.FitOptions.FILL) {
-      if (canvasRatio > aspectRatio) h = Math.round(w / canvasRatio)
-      else w = Math.round(h * canvasRatio)
+      if (canvasRatio > aspectRatio) h = Math.round(w / aspectRatio);
+      else w = Math.round(h * aspectRatio);
     }
   
+    let cbox = { x: Math.round((cw-w)/2), y: Math.round((ch-h)/2), w, h }
     context.drawImage(img,
-      Math.round((imgw - w)/2), Math.round((imgh - h)/2), w, h,
-      0, 0, cw, ch
+      0, 0, imgw, imgh,
+      cbox.x, cbox.y, cbox.w, cbox.h
     );
 
+    return cbox;
   }
 
-  addPrimerTriangles() {
+  addPrimerTriangles(box) {
     if (!this.imgLoaded) throw new Error("Tried to add priming triangles before image was loaded.");
     //TODO: if desired, black bars from fit/same should removed at this stage.
-    let splitter = new ScreenSplitter(this.canvas.width, this.canvas.height);
+    let splitter = new ScreenSplitter(box.x, box.y, box.w, box.h);
     let firstTriangles = splitter.randomSplit();
     firstTriangles.forEach(tri => this.triangles.push(tri));
   }
@@ -211,8 +231,8 @@ class ImageTessellator {
   animate(t) {
     if (this.tessellatingComplete) return;
 
-    if (t - this.lastTick > this.options.tickDelay) {
-      this.lastTick = t; 
+    if (t - this.lastTick > this.options.tickMinDuration) {
+      this.lastTick = t;
       this.tick();
     }
 
@@ -264,20 +284,34 @@ class ImageTessellator {
       ? this.triangles.shift()
       : this.triangles.pop()
     ;
-
     if (triangle == null) {
       this.tessellatingComplete = true;
       return null;
     }
-
-    if (this.isRenderable(triangle)) { 
-      triangle.draw(this.ctx, this.getTriangleColor(triangle), this.options.strokeColor);
-      let subs = triangle.getSubTriangles()
-      subs.forEach(sub => this.triangles.push(sub))
+    
+    let subs = this.getSubTriangles(triangle, this.options.splitMode);
+    if (this.isRenderable(triangle)) {
+      for (let sub of subs) {
+        sub.draw(this.ctx, this.getTriangleColor(sub), this.options.strokeColor);
+        this.triangles.push(sub)
+      }
     } else if (this.options.renderImgPieces) { //dispose img-triangle intersection to piece canvas
       triangle.draw(this.pieceCtx);
     }
+
     return triangle;
+  }
+
+  getSubTriangles(triangle, splitMode) {
+    switch (splitMode) {
+      case ImageTessellator.SplitOptions.HALVE:
+        return triangle.getHalves();
+      case ImageTessellator.SplitOptions.SIERPINSKI:
+        return triangle.getSubSierpinksis();
+      case ImageTessellator.SplitOptions.CENTROID:
+        return triangle.getCentroidSubs();
+    }
+    return [];
   }
 
   beginFade() {
