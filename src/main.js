@@ -63,7 +63,8 @@ export default class ImageTessellator {
     this.ctx = this.canvas.getContext("2d");
     this.tessellatingComplete = false;
     this.done = false;
-    this.options = {};
+    if (options == null) options = {};
+    this.options = {}
     for (let key in ImageTessellator.defaultOptions) {
       if (options.hasOwnProperty(key)) this.options[key] = options[key];
       else this.options[key] = ImageTessellator.defaultOptions[key];

@@ -1,15 +1,15 @@
 {
   "name": "image-tessellator",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "description": "Draw triangles over an image to create a cool effect",
-  "main": "dist/index.js",
+  "main": "dist/tessellator.es.js",
   "scripts": {
     "build": "webpack",
     "build:prod": "webpack -p"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jbernard3396/Tessalations.git"
+    "url": "git+https://github.com/EdricY/Tessalations.git"
   },
   "keywords": [
     "image",
@@ -23,16 +23,16 @@
     "saver",
     "screensaver"
   ],
-  "author": "jbernard3396",
+  "author": "EdricY",
   "contributors": [
     "jbernard3396",
     "EdricY"
   ],
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jbernard3396/Tessalations/issues"
+    "url": "https://github.com/EdricY/Tessalations/issues"
   },
-  "homepage": "https://github.com/jbernard3396/Tessalations#readme",
+  "homepage": "https://github.com/EdricY/Tessalations#readme",
   "devDependencies": {
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11"
