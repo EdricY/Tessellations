@@ -59,7 +59,9 @@ export default class ImageTessellator {
   }
 
   constructor(canvas, image, options) {
-    this.canvas = canvas;
+    this.canvas = canvas.transferControlToOffscreen();
+    this.canvas.width = canvas.clientWidth;
+    this.canvas.height = canvas.clientHeight;
     this.ctx = this.canvas.getContext("2d");
     this.tessellatingComplete = false;
     this.done = false;
@@ -101,10 +103,8 @@ export default class ImageTessellator {
   imgAfterLoad(img) {
     // setup canvas, imgCanvas, and pieceCanvas
     this.imgLoaded = true;
-    let cw = this.canvas.clientWidth;
-    let ch = this.canvas.clientHeight;
-    this.canvas.width = cw;
-    this.canvas.height = ch;
+    let cw = this.canvas.width;
+    let ch = this.canvas.height;
     this.ctx.fillStyle = this.options.backgroundColor;
     this.ctx.fillRect(0, 0, cw, ch)
 
