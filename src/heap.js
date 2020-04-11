@@ -1,5 +1,5 @@
 // https://eloquentjavascript.net/1st_edition/appendix2.html
-class BinaryHeap {
+export default class BinaryHeap {
   constructor(scoreFunction) {
     this.content = [];
     this.scoreFunction = scoreFunction;

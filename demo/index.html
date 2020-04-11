@@ -1,0 +1,55 @@
+<style>
+  body {
+    background-color: #444;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+  }
+  #canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  .abs {
+    position: absolute;
+    padding: 10px;
+  }
+</style>
+<title>Image Tessellator Demo</title>
+<div class="abs">
+  <button id="playBtn">play</button>
+  <button id="pauseBtn">pause</button>
+  <button id="tickBtn">tick</button>
+</div>
+<canvas id="canvas"></canvas>
+<script src="../dist/tessellator.js"></script>
+<script>
+let params = new URLSearchParams(window.location.search);
+let tessOptions = {};
+params.forEach((val, key) => {
+  if (!ImageTessellator.defaultOptions.hasOwnProperty(key)) return;
+  let defVal = ImageTessellator.defaultOptions[key];
+  let defType = typeof defVal;
+  if (defType == "string") tessOptions[key] = val;
+  else if (defType == "boolean") tessOptions[key] = Boolean(val);
+  else if (defType == "number") tessOptions[key] = Number(val);
+});
+
+let src = params.get("src") || "image1.jpg";
+let c = document.getElementById("canvas");
+
+let it = new ImageTessellator(c, src, tessOptions);
+// it.loadCallback = "playAnimation"
+
+document.getElementById("playBtn").addEventListener("click", () =>{
+  console.log(it)
+  it.playAnimation();
+  console.log(it.triangles)
+});
+document.getElementById("pauseBtn").addEventListener("click", () =>{
+  it.pauseAnimation();
+});
+document.getElementById("tickBtn").addEventListener("click", () =>{
+  it.tick();
+});
+</script>

@@ -1,49 +1,61 @@
-class ImageTessellator {
+import BinaryHeap from "./heap";
+import ScreenSplitter from "./screensplit";
+import Color from "./color";
 
-  static FitOptions = {
-    FIT: 0,      // largest possible size while still fitting inside canvas
-    FILL: 1,     // fill canvas completely while keeping aspect ratio
-    SAME: 2,     // draw at original image size
-    STRETCH: 3,  // stretch to canvas dimensions
+export default class ImageTessellator {
+
+  static get FitOptions() {
+    return {
+      FIT: 0,      // largest possible size while still fitting inside canvas
+      FILL: 1,     // fill canvas completely while keeping aspect ratio
+      SAME: 2,     // draw at original image size
+      STRETCH: 3,  // stretch to canvas dimensions
+    }
   }
 
-  static TraversalOptions = {
-    LARGEST_FIRST: 0,
-    IN_ORDER: 1,
-    RANDOM_ORDER: 2,
+  static get TraversalOptions() {
+    return {
+      LARGEST_FIRST: 0,
+      IN_ORDER: 1,
+      RANDOM_ORDER: 2,
+    }
   }
 
-  static SplitOptions = {
-    HALVE: 0,
-    SIERPINSKI: 1,
-    CENTROID: 2,
+  static get SplitOptions() {
+    return {
+      HALVE: 0,
+      SIERPINSKI: 1,
+      CENTROID: 2,
+    }
   }
 
-  static defaultOptions = {
-    imgSampleRatio: .01, // 0 to 1. smaller value means less color accuracy but faster processing
+  static get defaultOptions() {
+    return {
+      imgSampleRatio: .01, // 0 to 1. smaller value means less color accuracy but faster processing
 
-    fitMethod: ImageTessellator.FitOptions.FIT,
-    
-    traversalMode: ImageTessellator.TraversalOptions.LARGEST_FIRST,
+      fitMethod: ImageTessellator.FitOptions.FIT,
+      
+      traversalMode: ImageTessellator.TraversalOptions.LARGEST_FIRST,
 
-    splitMode: ImageTessellator.SplitOptions.HALVE,
-    
-    loadCallback: null,
-    
-    backgroundColor: "#555",
-    strokeColor: "#555",
-    //TODO: no stroke option
+      splitMode: ImageTessellator.SplitOptions.HALVE,
+      
+      loadCallback: null,
+      
+      backgroundColor: "#555",
+      strokeColor: "#555",
+      //TODO: no stroke option
 
-    minColorArea: 50,
-    itersPerTick: 200,
-    areaPerTick: 10000,
-    tickMinDuration: 0,
+      minColorArea: 50,
+      itersPerTick: 200,
+      areaPerTick: 10000,
+      tickMinDuration: 0,
 
-    renderImgPieces: false, //set to true to draw pieces of the actual image when triangles are tiny
+      renderImgPieces: false, //set to true to draw pieces of the actual image when triangles are tiny
 
-    //fade can only happen if renderImgPieces is false
-    doFadeAfter: false,
-    fadeDelay: 500, //in ms
+      //fade can only happen if renderImgPieces is false
+      doFadeAfter: false,
+      fadeDelay: 500, //in ms
+    }
   }
 
   constructor(canvas, image, options) {
@@ -219,15 +231,15 @@ class ImageTessellator {
   }
 
   playAnimation() {
-    cancelAnimationFrame(this.currentRafId);
-    requestAnimationFrame(t => this.animate(t));
+    window.cancelAnimationFrame(this.currentRafId);
+    this.lastTick = 0;
+    window.requestAnimationFrame(t => this.animate(t));
   }
 
   pauseAnimation() {
-    cancelAnimationFrame(this.currentRafId);
+    window.cancelAnimationFrame(this.currentRafId);
   }
 
-  lastTick = 0;
   animate(t) {
     if (this.tessellatingComplete) return;
 
@@ -236,7 +248,7 @@ class ImageTessellator {
       this.tick();
     }
 
-    this.currentRafId = requestAnimationFrame(t => this.animate(t));
+    this.currentRafId = window.requestAnimationFrame(t => this.animate(t));
   }
 
   tick() {
@@ -347,3 +359,5 @@ if (!window.OffscreenCanvas) {
     }
   };
 }
+
+window.ImageTessellator = ImageTessellator;

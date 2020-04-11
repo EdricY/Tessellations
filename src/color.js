@@ -1,4 +1,4 @@
-class Color {
+export default class Color {
   constructor (...[vals]) {
     this.vals = vals.map(x => Math.round(x));
   }
@@ -26,4 +26,3 @@ class Color {
     return new Color(rgb.map(x => x/count));
   }
 }
-

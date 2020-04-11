@@ -1,4 +1,8 @@
-class ScreenSplitter {
+import Triangle from "./triangle"
+import Point from "./point"
+import MathHelp from "./mathhelp";
+
+export default class ScreenSplitter {
   constructor(x, y, w, h) {
     this.tl = new Point(x, y);
     this.tr = new Point(x+w, y);

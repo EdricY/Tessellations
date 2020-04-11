@@ -1,5 +1,5 @@
 
-class MathHelp {
+export default class MathHelp {
   static lerp(a, b, frac) {
     return (a * frac) + (b * (1-frac))
   }
