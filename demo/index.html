@@ -31,7 +31,7 @@ params.forEach((val, key) => {
   let defVal = ImageTessellator.defaultOptions[key];
   let defType = typeof defVal;
   if (defType == "string") tessOptions[key] = val;
-  else if (defType == "boolean") tessOptions[key] = Boolean(val);
+  else if (defType == "boolean") tessOptions[key] = val == "true" || val > 0;
   else if (defType == "number") tessOptions[key] = Number(val);
 });
 

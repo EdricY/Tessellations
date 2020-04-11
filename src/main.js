@@ -41,9 +41,9 @@ export default class ImageTessellator {
       
       loadCallback: null,
       
-      backgroundColor: "#555",
+      backgroundColor: "#567",
       strokeColor: "#555",
-      //TODO: no stroke option
+      doStroke: true,
 
       minColorArea: 50,
       itersPerTick: 200,
@@ -105,6 +105,8 @@ export default class ImageTessellator {
     let ch = this.canvas.clientHeight;
     this.canvas.width = cw;
     this.canvas.height = ch;
+    this.ctx.fillStyle = this.options.backgroundColor;
+    this.ctx.fillRect(0, 0, cw, ch)
 
     this.tempCanvas.width = cw;
     this.tempCanvas.height = ch;
@@ -114,8 +116,8 @@ export default class ImageTessellator {
     this.imgCtx.fillStyle = this.options.backgroundColor;
     this.imgCtx.fillRect(0, 0, cw, ch);
 
-    let box = this.placeImage(this.imgCtx, img, this.options.fitMethod);
-    this.addPrimerTriangles(box);
+    this.imgBounds = this.placeImage(this.imgCtx, img, this.options.fitMethod);
+    // this.addPrimerTriangles(box);
     
     if (this.options.renderImgPieces) {
       this.pieceCanvas = new OffscreenCanvas(cw, ch);
@@ -178,12 +180,10 @@ export default class ImageTessellator {
     return cbox;
   }
 
-  addPrimerTriangles(box) {
+  getPrimerTriangles(box) {
     if (!this.imgLoaded) throw new Error("Tried to add priming triangles before image was loaded.");
-    //TODO: if desired, black bars from fit/same should removed at this stage.
     let splitter = new ScreenSplitter(box.x, box.y, box.w, box.h);
-    let firstTriangles = splitter.randomSplit();
-    firstTriangles.forEach(tri => this.triangles.push(tri));
+    return splitter.randomSplit();
   }
 
   /**
@@ -258,8 +258,7 @@ export default class ImageTessellator {
     let area = 0;
     while (true) {
       let triangle = this.processOne();
-      if (this.tessellatingComplete) break;
-  
+      
       //non-renderables only count if we render pieces
       if (this.isRenderable(triangle)) {
         iters++;
@@ -270,6 +269,7 @@ export default class ImageTessellator {
         area += triangle.area;
       }
       
+      if (this.tessellatingComplete) break;
       if (iters >= this.options.itersPerTick) break;
       if (area >= this.options.areaPerTick) break;
     }
@@ -279,6 +279,7 @@ export default class ImageTessellator {
     if (this.options.renderImgPieces && flushPieces) this.flushImagePieces();
   
     if (this.tessellatingComplete) {
+      //either draw to fill in gaps, fade to image, or leave it alone
       if (this.options.renderImgPieces) {
         this.ctx.drawImage(this.imgCanvas, 0, 0, this.canvas.width, this.canvas.height);
         this.done = true;
@@ -293,22 +294,29 @@ export default class ImageTessellator {
    * Processes and draws one triangle. If there are no triangles left, the tessellatingComplete flag is set.
    */
   processOne() {
-    let triangle = this.options.traversalMode == ImageTessellator.TraversalOptions.IN_ORDER 
-      ? this.triangles.shift()
-      : this.triangles.pop()
-    ;
-    if (triangle == null) {
-      this.tessellatingComplete = true;
-      return null;
+    let { traversalMode, splitMode, doStroke, strokeColor, renderImgPieces } = this.options;
+    if (this.triangles.length == 0) { // first time called
+      let primers = this.getPrimerTriangles(this.imgBounds);
+      for (let tri of primers) {
+        tri.draw(this.ctx, this.getTriangleColor(tri), doStroke, strokeColor);
+        this.triangles.push(tri)
+      }
+      return { area: this.imgBounds.w * this.imgBounds.h };
     }
+
+    let triangle = traversalMode == ImageTessellator.TraversalOptions.IN_ORDER 
+    ? this.triangles.shift()
+    : this.triangles.pop();
+
+    if (this.triangles.length == 0) this.tessellatingComplete = true;
     
-    let subs = this.getSubTriangles(triangle, this.options.splitMode);
+    let subs = this.getSubTriangles(triangle, splitMode);
     if (this.isRenderable(triangle)) {
       for (let sub of subs) {
-        sub.draw(this.ctx, this.getTriangleColor(sub), this.options.strokeColor);
+        sub.draw(this.ctx, this.getTriangleColor(sub), doStroke, strokeColor);
         this.triangles.push(sub)
       }
-    } else if (this.options.renderImgPieces) { //dispose img-triangle intersection to piece canvas
+    } else if (renderImgPieces) { //dispose img-triangle intersection to piece canvas
       triangle.draw(this.pieceCtx);
     }
 
@@ -341,8 +349,8 @@ export default class ImageTessellator {
   fadeToImg() {
     this.ctx.globalAlpha = 1;
     this.ctx.drawImage(this.tempCanvas, 0, 0);
-
-    this.ctx.globalAlpha = this.fadeAlpha += .01;
+    this.fadeAlpha += .01
+    this.ctx.globalAlpha = this.fadeAlpha;
     this.ctx.drawImage(this.imgCanvas, 0, 0, this.canvas.width, this.canvas.height);
     
     if (this.fadeAlpha < 1) requestAnimationFrame(() => this.fadeToImg());
@@ -361,4 +369,4 @@ if (!window.OffscreenCanvas) {
   };
 }
 
-window.ImageTessellator = ImageTessellator;
+if (process.browser) window.ImageTessellator = ImageTessellator;

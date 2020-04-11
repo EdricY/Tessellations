@@ -5,6 +5,10 @@ export default class BinaryHeap {
     this.scoreFunction = scoreFunction;
   }
 
+  get length() {
+    return this.content.length;
+  }
+
   push(element) {
     // Add the new element to the end of the array.
     this.content.push(element);

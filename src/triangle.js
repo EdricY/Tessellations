@@ -36,12 +36,15 @@ export default class Triangle {
     return new Point(x, y);
   }
 
-  draw(ctx, fillColor="orange", strokeColor="#555") {
+  draw(ctx, fillColor="orange", doStroke=true, strokeColor) {
     ctx.fillStyle = fillColor.toString();
-    ctx.strokeStyle = strokeColor;
     ctx.lineJoin = "bevel";
-    ctx.lineWidth = Math.sqrt(this.area) / 10;
-    if (ctx.lineWidth < 2) {
+    // ctx.lineWidth = Math.sqrt(this.area) / 10;
+    ctx.strokeStyle = strokeColor
+    if      (this.area > 10000) ctx.lineWidth = 6
+    else if (this.area > 1000) ctx.lineWidth = 3
+    else if (this.area > 100) ctx.lineWidth = 1
+    else {
       ctx.lineWidth = 2;
       ctx.strokeStyle = fillColor;
     }
@@ -51,7 +54,7 @@ export default class Triangle {
     ctx.lineTo(this.p3.x, this.p3.y);
     ctx.closePath();
     ctx.fill();
-    ctx.stroke();
+    if (doStroke) ctx.stroke();
   }
   
   getSubSierpinksis() {

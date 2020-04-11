@@ -15,8 +15,8 @@ export default class ScreenSplitter {
     this.mr = Point.midpoint(this.tr, this.br, MathHelp.randNearHalf());
     
     this.c = new Point(
-      MathHelp.lerp(0, w, MathHelp.randFloat(.1,.9)),
-      MathHelp.lerp(0, h, MathHelp.randFloat(.1,.9))
+      MathHelp.lerp(0, w, MathHelp.randNearHalf()),
+      MathHelp.lerp(0, h, MathHelp.randNearHalf())
     );
 
   }

@@ -12,6 +12,7 @@ Navigate to https://edricy.github.io/Tessalations/demo (tested in Google Chrome)
 `require("image-tesselator");`
 ## Basic Usage
 See the [demo code](demo/index.html)
+
 Setup your canvas like you want it.
 ```
 <style>
@@ -28,5 +29,5 @@ call the constructor
 ```
 let c = document.getElementById("c");
 let src = "path/to/img.png"
-let  tess = new  ImageTessellator(c, src, {loadCallback: "playAnimation"});
+let tess = new  ImageTessellator(c, src, {loadCallback: "playAnimation"});
 ```
