@@ -51,7 +51,7 @@ let tess = new  ImageTessellator(c, src, {loadCallback: "playAnimation"});
 | `tickMinDuration   `| `0`                              |                                                                           |
 | `renderImgPieces   `| `false`                          | set to true to draw pieces of the actual image when triangles are tiny    |
 | `doFadeAfter       `| `false`                          | fade the actual image on top when finished. renderImgPieces must be false |
-| `fadeDelay         `| `500`, //in ms                   | number of ms to wait before doing the after fade                          |
+| `fadeDelay         `| `500`,                           | number of ms to wait before doing the after fade                          |
 
 
 An example with different options specified:
