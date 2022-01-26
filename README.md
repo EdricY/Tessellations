@@ -62,10 +62,10 @@ An example with different options specified:
 https://edricy.github.io/Tessellations/demo?splitMode=1&traversalMode=1&doStroke=false&doFadeAfter=true
 ```
 FitOptions:
-FIT: 0,      // largest possible size while still fitting inside canvas
-FILL: 1,     // fill canvas completely while keeping aspect ratio
-SAME: 2,     // draw at original image size
-STRETCH: 3,  // stretch to canvas dimensions
+FIT: 0      // largest possible size while still fitting inside canvas
+FILL: 1     // fill canvas completely while keeping aspect ratio
+SAME: 2     // draw at original image size
+STRETCH: 3  // stretch to canvas dimensions
 
 TraversalOptions:
 LARGEST_FIRST: 0
