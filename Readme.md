@@ -13,6 +13,11 @@ Navigate to https://edricy.github.io/Tessellations/demo (tested in Google Chrome
 ## Basic Usage
 See the [demo code](demo/index.html)
 
+//fade can only happen if renderImgPieces is false
+doFadeAfter: false,
+fadeDelay: 500, //in ms
+
+
 Setup your canvas like you want it.
 ```
 <style>
@@ -30,4 +35,45 @@ call the constructor
 let c = document.getElementById("c");
 let src = "path/to/img.png"
 let tess = new  ImageTessellator(c, src, {loadCallback: "playAnimation"});
+```
+
+## Options
+
+| Property            | Default    | Notes |
+| --------------------|------------|-------|
+| `imgSampleRatio    `| `.01`                            | 0 to 1. smaller value means less color accuracy but faster processing     |
+| `fitMethod         `| `FitOptions.FIT`                 | Specifies how the canvas is fit to the container                          |
+| `traversalMode     `| `TraversalOptions.LARGEST_FIRST` | Specifies what order triangles are processed                              |
+| `splitMode         `| `SplitOptions.HALVE`             | Specifies how the triangles are split                                     |
+| `loadCallback      `| `null`                           | called after the images loads                                             |
+| `backgroundColor   `| `#567`                           |                                                                           |
+| `strokeColor       `| `#555`                           |                                                                           |
+| `doStroke          `| `true`                           |                                                                           |
+| `minColorArea      `| `50`                             |                                                                           |
+| `itersPerTick      `| `200`                            |                                                                           |
+| `areaPerTick       `| `10000`                          |                                                                           |
+| `tickMinDuration   `| `0`                              |                                                                           |
+| `renderImgPieces   `| `false`                          | set to true to draw pieces of the actual image when triangles are tiny    |
+| `doFadeAfter       `| `false`                          | fade the actual image on top when finished. renderImgPieces must be false |
+| `fadeDelay         `| `500`, //in ms                   | number of ms to wait before doing the after fade                          |
+
+
+An example with different options specified:
+https://edricy.github.io/Tessellations/demo?splitMode=1&traversalMode=1&doStroke=false&doFadeAfter=true
+```
+FitOptions:
+FIT: 0,      // largest possible size while still fitting inside canvas
+FILL: 1,     // fill canvas completely while keeping aspect ratio
+SAME: 2,     // draw at original image size
+STRETCH: 3,  // stretch to canvas dimensions
+
+TraversalOptions:
+LARGEST_FIRST: 0
+IN_ORDER: 1
+RANDOM_ORDER: 2
+
+SplitOptions:
+HALVE: 0
+SIERPINSKI: 1
+CENTROID: 2
 ```
