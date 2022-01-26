@@ -1,5 +1,7 @@
 # Tessellations
 This project is a cute little program that loads up a random image and draws triangles over it. It is meant to be nothing more than a simple screen saver like application.
+
+Available as an [npm package](https://www.npmjs.com/package/image-tessellator)
 ## Live Demo
 Navigate to https://edricy.github.io/Tessellations/demo (tested in Google Chrome)
 ## Download
