@@ -13,11 +13,6 @@ Navigate to https://edricy.github.io/Tessellations/demo (tested in Google Chrome
 ## Basic Usage
 See the [demo code](demo/index.html)
 
-//fade can only happen if renderImgPieces is false
-doFadeAfter: false,
-fadeDelay: 500, //in ms
-
-
 Setup your canvas like you want it.
 ```
 <style>
@@ -30,6 +25,7 @@ Setup your canvas like you want it.
 ```
 include the script
 `<script src="/path/to/tessellator.js"></script>`
+
 call the constructor
 ```
 let c = document.getElementById("c");
