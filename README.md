@@ -45,7 +45,7 @@ let tess = new  ImageTessellator(c, src, {loadCallback: "playAnimation"});
 | `fitMethod         `| `FitOptions.FIT`                 | Specifies how the canvas is fit to the container                          |
 | `traversalMode     `| `TraversalOptions.LARGEST_FIRST` | Specifies what order triangles are processed                              |
 | `splitMode         `| `SplitOptions.HALVE`             | Specifies how the triangles are split                                     |
-| `loadCallback      `| `null`                           | called after the images loads                                             |
+| `loadCallback      `| `null`                           | called after the image loads                                              |
 | `backgroundColor   `| `#567`                           |                                                                           |
 | `strokeColor       `| `#555`                           |                                                                           |
 | `doStroke          `| `true`                           |                                                                           |
